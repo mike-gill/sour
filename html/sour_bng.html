@@ -31,13 +31,21 @@
       var serviceUrl = 'https://infrpoc5.azurewebsites.net/api/tiles/24?code=AQNRlpEuCHPFBx7HMXH3kO46506bNzKxZTmpIKXz01iW1pggFi7DwA==';
       var serviceInsertUrl = 'https://infrpoc5.azurewebsites.net/api/Insert?code=JwhPSGHLIcoLfBgUtHy4mr0H1a1aT7nOkbFxaogKEO1k6Kq5CdkxzA==';
       var extent = ol.proj.transformExtent([-8.74, 49.81, 1.84, 60.9], 'EPSG:4326', 'EPSG:27700');
+      //var extent = [500000,100000,600000,200000];
+
       var projection = ol.proj.get('EPSG:27700');
       projection.setExtent(extent);
+      
+      var maxResolution = 100;
       
       var geojsonFormat = new ol.format.GeoJSON();
       console.log("HELLO1");
       var vectorSource = new ol.source.Vector({
         loader: function(extent, resolution, projection) {
+          console.log("Resolution:  " + resolution)
+          if (resolution > maxResolution) {
+            return;
+          }
           var url = serviceUrl + '&f=json&' +
               'returnGeometry=true&spatialRel=esriSpatialRelIntersects&geometry=' +
               encodeURIComponent('{"xmin":' + extent[0] + ',"ymin":' +
@@ -62,7 +70,9 @@
             }
           }});
         },
-        strategy: ol.loadingstrategy.bbox
+        strategy: ol.loadingstrategy.bbox,
+        minResolution: 0,
+        maxResolution: maxResolution
       });
 
       var vector = new ol.layer.Vector({
@@ -119,7 +129,7 @@
           projection: projection,
           center: ol.proj.fromLonLat([-2.24347, 54.88787], projection),
           extent: extent,
-          zoom: 1
+          zoom: 5
         })
       });
       
